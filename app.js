@@ -4,6 +4,9 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var request = require('request');
+
+var config = require('./config');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -58,3 +61,74 @@ app.use(function(err, req, res, next) {
 
 
 module.exports = app;
+
+function updateJobLeds(index)
+{
+  auth = "Basic " + new Buffer(config.jenkins.username + ":" + config.jenkins.password).toString("base64");
+
+  job = config.jobs[index];
+
+  req = {
+    url: 'http://' + config.jenkins.host + ':' + config.jenkins.port + '/job/' + job + '/lastBuild/api/json',
+    headers: {
+      'Authorization': auth,
+    }
+  };
+
+  console.log("Requesting job " + job + " ...");
+  request(req, function (error, response, body)
+  {
+    if (!error && response.statusCode == 200)
+    {
+      var jenkinsLastBuild = JSON.parse(body);
+      if (!jenkinsLastBuild.building)
+      {
+        console.log(job + " is currently not building and result is " + jenkinsLastBuild.result);
+        switch(jenkinsLastBuild.result)
+        {
+          case "UNSTABLE":
+            console.log("SET LED " + index + " TO UNSTABLE");
+            request.get({url: 'http://localhost:3000/led/' + index + '/fill/yellow'});
+            break;
+          case "FAILURE":
+            console.log("SET LED " + index + " TO FAILURE");
+            request.get({url: 'http://localhost:3000/led/' + index + '/fill/red'});
+            break;
+          case "SUCCESS":
+            console.log("SET LED " + index + " TO SUCCESS");
+            request.get({url: 'http://localhost:3000/led/' + index + '/fill/blue'});
+            break;
+          default:
+            console.log("SET LED " + index + " TO UNKNOWN");
+            request.get({url: 'http://localhost:3000/led/' + index + '/fill/white'});
+        }
+      }
+      else
+      {
+        console.log(job + " is currently building...");
+        request.get({url: 'http://localhost:3000/led/' + index + '/blink/yellow'});
+      }
+    }
+    else
+    {
+      console.log("Error while requesting info for job '" + job + "'.");
+      request.get({url: 'http://localhost:3000/led/' + index + '/fill/black'});
+    }
+
+    nextLedIndex = index + 1;
+    if (config.jobs.length == nextLedIndex)
+    {
+      nextLedIndex = 0;
+      console.log("Restarting job update cycle.");
+    }
+
+    console.log("Starting recursive call for led index " + nextLedIndex);
+    setTimeout(function()
+    {
+      updateJobLeds(nextLedIndex);
+    }, 4000);
+  });
+
+}
+
+updateJobLeds(0);
