@@ -73,10 +73,10 @@ fs.readdirSync(servicesPath).forEach(function(file) {
     }
 });
 
-// Run Services
-Services.forEach(function(service) {
-    service.setup(config);
-});
+  // Run Services
+  Services.forEach(function(service) {
+      service.setup(config);
+  });
 
 function shutdown() {
     Services.forEach(function(service) {
