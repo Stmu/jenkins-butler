@@ -3,14 +3,14 @@
 module.exports = {
   jenkins:
   {
-    "host": "127.0.0.1",
-    "port": "8080",
-    "username": "admin",
-    "token": "token",
-    "updateIntervall": 5000,
+    "host": "localhost",
+    "port" : 8080,
+    "username" : "admin",
+    "token" : "a3c2ace72dc17dc77903116f14bd19f4",
+    "updateIntervall": 5,
     "jobs": [
         {
-            "job": "my-test-job",
+            "job": "Test",
             "leds": {
                 "start": 0,
                 "end": 4
@@ -24,5 +24,14 @@ module.exports = {
             }
         }
     ]
-}
+  },
+  leds:{
+    "host" : "localhost",
+    "port" : 3000,
+    // unused for now
+    "failed" : "red",
+    "success" : "blue",
+    "building" : "yellow",
+    "blink_at_building" : true
+  }
 };
