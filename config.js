@@ -28,7 +28,7 @@ module.exports = {
   leds:{
     "host" : "localhost",
     "port" : 3000,
-    // unused for now
+    // unused
     "failed" : "red",
     "success" : "blue",
     "building" : "yellow",
