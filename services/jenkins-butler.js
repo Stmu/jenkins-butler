@@ -135,10 +135,11 @@ JenkinsButlerService.prototype.setup = function (config)
   updateTimer = setInterval(updateStatesOfJobs, config.jenkins.updateIntervall * 1000, config);
 }
 
-JenkinsButlerService.prototype.shutdown = function() {
+JenkinsButlerService.prototype.shutdown = function(config) {
   if (updateTimer) {
     console.log('JenkinsButlerService shutdown...')
     clearInterval(updateTimer);
+    http.get({ hostname : config.leds.host, port : config.leds.port,  path: '/api/black'});
   }
 }
 
