@@ -80,7 +80,7 @@ fs.readdirSync(servicesPath).forEach(function(file) {
 
 function shutdown() {
     Services.forEach(function(service) {
-        service.shutdown(config);
+        service.shutdown();
     });
 
     process.exit();

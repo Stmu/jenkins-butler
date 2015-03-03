@@ -1,6 +1,6 @@
 var http = require('http'),
-    _ = require('underscore'),
-    updateTimer;
+  _ = require('underscore'),
+  updateTimer;
 
 function JenkinsButler(options) {
   var self = this;
@@ -24,14 +24,14 @@ function JenkinsButler(options) {
   self.updateIntervall = self.options.updateIntervall || null;
 }
 
-JenkinsButler.prototype.buildRequestOptions = function(job){
+JenkinsButler.prototype.buildRequestOptions = function(job) {
   var options = {
-      hostname : this.host,
-      port : this.port,
-      path: '/job/' + job.job + '/lastBuild/api/json?token=' + this.token,
-      headers: {
-       'Authorization': 'Basic ' + new Buffer(this.username + ':' + this.token).toString('base64')
-     }
+    hostname: this.host,
+    port: this.port,
+    path: '/job/' + job.job + '/lastBuild/api/json?token=' + this.token,
+    headers: {
+      'Authorization': 'Basic ' + new Buffer(this.username + ':' + this.token).toString('base64')
+    }
   };
   return options;
 }
@@ -46,90 +46,105 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
       return;
     }
 
-    res.on('data', function(data){
+    res.on('data', function(data) {
       var response = JSON.parse(data);
       callback(null, response.building ? "BUILDING" : response.result);
     });
 
   }).on('error', function(e) {
-        console.error('Error: ' + e);
-        callback(e);
-        return;
-      }).on('end', function(e) {
-        console.error('End:' + e);
-        callback(e);
-        return;
-      });
-
-  callback("fatal error...")
+    console.error('Error: ' + e);
+    callback(e);
+    return;
+  }).on('end', function(e) {
+    console.error('End:' + e);
+    callback(e);
+    return;
+  });
 }
 
 function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
 
-  butler.jobs.forEach(function(job){
+  butler.jobs.forEach(function(job) {
     butler.getJobStatus(job, function(err, result) {
-      console.log('Result of '+ job.job +' is ' + JSON.stringify(result));
+      console.log('Result of ' + job.job + ' is ' + JSON.stringify(result));
 
       if (!err) {
         setLEDForJob(job, result, options);
-      }
-      else{
+      } else {
         console.error(err);
       }
     });
   })
 }
 
-function setLEDForJob(job, result, options){
+function setLEDForJob(job, result, options) {
 
-  switch(result){
-   case "UNSTABLE":
-      for(var index = job.leds.start; index < job.leds.end; index++){
-        console.log("SET LED " + index + " TO UNSTABLE");
-        http.get(buildLedRequestOptions(options, index, "darkred"));
-      }
+  switch (result) {
+    case "UNSTABLE":
+      http.get(buildLedRequestOptions(options, job, options.leds.unstable));
+      //makeLedsShining(job.leds.start, job.leds.end, options.leds.unstable, options);
       break;
     case "FAILURE":
-      for(var index = job.leds.start; index < job.leds.end; index++){
-        console.log("SET LED " + index + " TO FAILURE");
-        http.get(buildLedRequestOptions(options, index, "red"));
-      }
+      http.get(buildLedRequestOptions(options, job, options.leds.failure));
+      //makeLedsShining(job.leds.start, job.leds.end, options.leds.failed, options);
       break;
     case "SUCCESS":
-      for(var index = job.leds.start; index < job.leds.end; index++){
-        console.log("SET LED " + index + " TO SUCCESS");
-        http.get(buildLedRequestOptions(options, index, "blue"));
-      }
+      http.get(buildLedRequestOptions(options, job, options.leds.success));
+      //makeLedsShining(job.leds.start, job.leds.end, options.leds.success, options);
       break;
     case "BUILDING":
-        for(var index = job.leds.start; index < job.leds.end; index++){
-          console.log("SET LED " + index + " TO SUCCESS");
-          http.get(buildLedRequestOptions(options, index, "yellow"));
-        }
-        break;
+      http.get(buildLedRequestOptions(options, job, options.leds.building));
+      //makeLedsShining(job.leds.start, job.leds.end, options.leds.building, options);
+      break;
     default:
-      for(var index = job.leds.start; index < job.leds.end; index++){
-        console.log("SET LED " + index + " TO UNDEFINED");
-        http.get(buildLedRequestOptions(options, index, "white"));
-      }
+      http.get(buildLedRequestOptions(options, job, "#000000"));
+      //makeLedsShining(job.leds.start, job.leds.end, "#000000", options);
   }
 }
 
-function buildLedRequestOptions(options, index, color){
+function buildLedRequestOptions(options, job, color) {
   return {
-      hostname : options.leds.host,
-      port : options.leds.port,
-      path: '/led/' + index + '/fill/' + color
+    hostname: options.leds.host,
+    port: options.leds.port,
+    path: '/led/from/' + job.leds.start + '/to/' + job.leds.end + '/fill/' + color
   };
+}
+
+function buildLedRequestOptionsPost(options) {
+  return {
+    hostname: options.leds.host,
+    port: options.leds.port,
+    method: "POST",
+    path: "/api/range",
+    headers: {
+      'Content-Type': "application/json"
+    }
+  };
+}
+
+function makeLedsShining(start, end, color, options) {
+  req = http.request(buildLedRequestOptionsPost(options));
+
+  req.on('error', function(e) {
+    console.log('problem with request: ' + e.message);
+  });
+
+  var post_data = JSON.stringify({
+    "from": start,
+    "to": end,
+    "rgb": color
+  });
+
+  req.write(post_data);
+  req.end();
 }
 
 function JenkinsButlerService(options) {
 
 }
 
-JenkinsButlerService.prototype.setup = function (config)
-{
+JenkinsButlerService.prototype.setup = function(config) {
   butler = new JenkinsButler(config.jenkins);
   updateStatesOfJobs(config);
   updateTimer = setInterval(updateStatesOfJobs, config.jenkins.updateIntervall * 1000, config);
@@ -139,7 +154,11 @@ JenkinsButlerService.prototype.shutdown = function(config) {
   if (updateTimer) {
     console.log('JenkinsButlerService shutdown...')
     clearInterval(updateTimer);
-    http.get({ hostname : config.leds.host, port : config.leds.port,  path: '/api/black'});
+    http.get({
+      hostname: config.leds.host,
+      port: config.leds.port,
+      path: '/api/black'
+    });
   }
 }
 
