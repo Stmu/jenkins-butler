@@ -82,25 +82,24 @@ function setLEDForJob(job, result, options) {
 
   switch (result) {
     case "UNSTABLE":
-      http.get(buildLedRequestOptions(options, job, options.leds.unstable));
-      //makeLedsShining(job.leds.start, job.leds.end, options.leds.unstable, options);
+      http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError);
       break;
     case "FAILURE":
-      http.get(buildLedRequestOptions(options, job, options.leds.failure));
-      //makeLedsShining(job.leds.start, job.leds.end, options.leds.failed, options);
+      http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError);
       break;
     case "SUCCESS":
-      http.get(buildLedRequestOptions(options, job, options.leds.success));
-      //makeLedsShining(job.leds.start, job.leds.end, options.leds.success, options);
+      http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError);
       break;
     case "BUILDING":
-      http.get(buildLedRequestOptions(options, job, options.leds.building));
-      //makeLedsShining(job.leds.start, job.leds.end, options.leds.building, options);
+      http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError);
       break;
     default:
-      http.get(buildLedRequestOptions(options, job, "#000000"));
-      //makeLedsShining(job.leds.start, job.leds.end, "#000000", options);
+      http.get(buildLedRequestOptions(options, job, "#000000")).on('error', onRequestError);
   }
+}
+
+function onRequestError(err) {
+  console.log("Got error: " + err.message);
 }
 
 function buildLedRequestOptions(options, job, color) {
@@ -111,34 +110,34 @@ function buildLedRequestOptions(options, job, color) {
   };
 }
 
-function buildLedRequestOptionsPost(options) {
-  return {
-    hostname: options.leds.host,
-    port: options.leds.port,
-    method: "POST",
-    path: "/api/range",
-    headers: {
-      'Content-Type': "application/json"
-    }
-  };
-}
-
-function makeLedsShining(start, end, color, options) {
-  req = http.request(buildLedRequestOptionsPost(options));
-
-  req.on('error', function(e) {
-    console.log('problem with request: ' + e.message);
-  });
-
-  var post_data = JSON.stringify({
-    "from": start,
-    "to": end,
-    "rgb": color
-  });
-
-  req.write(post_data);
-  req.end();
-}
+// function buildLedRequestOptionsPost(options) {
+//   return {
+//     hostname: options.leds.host,
+//     port: options.leds.port,
+//     method: "POST",
+//     path: "/api/range",
+//     headers: {
+//       'Content-Type': "application/json"
+//     }
+//   };
+// }
+//
+// function makeLedsShining(start, end, color, options) {
+//   req = http.request(buildLedRequestOptionsPost(options));
+//
+//   req.on('error', function(e) {
+//     console.log('problem with request: ' + e.message);
+//   });
+//
+//   var post_data = JSON.stringify({
+//     "from": start,
+//     "to": end,
+//     "rgb": color
+//   });
+//
+//   req.write(post_data);
+//   req.end();
+// }
 
 function JenkinsButlerService(options) {
 
@@ -154,10 +153,13 @@ JenkinsButlerService.prototype.shutdown = function(config) {
   if (updateTimer) {
     console.log('JenkinsButlerService shutdown...')
     clearInterval(updateTimer);
+
     http.get({
       hostname: config.leds.host,
       port: config.leds.port,
       path: '/api/black'
+    }, function(res) {
+      console.log("Result: " + res.statusCode)
     });
   }
 }
