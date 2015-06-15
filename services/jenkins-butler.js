@@ -46,10 +46,19 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
       return;
     }
 
+    var resonse = '';
+
     res.on('data', function(data) {
-      var response = JSON.parse(data);
-      callback(null, response.building ? "BUILDING" : response.result);
+      response += data;
     });
+
+    res.on('end', function(){
+      var response = JSON.parse(response);
+      callback(null, response.building ? "BUILDING" : response.result);
+    })
+
+    var response = JSON.parse(data);
+    callback(null, response.building ? "BUILDING" : response.result);
 
   }).on('error', function(e) {
     console.error('Error: ' + e);
