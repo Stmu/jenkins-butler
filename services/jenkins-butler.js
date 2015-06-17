@@ -72,11 +72,7 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
 function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
   
-  for(var i = 0; i < butler.jobs.length; i++) {
-
-    var job = butler.jobs[i]
-  //}
-  //butler.jobs.forEach(function(job) {
+  butler.jobs.forEach(function(job) {
     sync.fiber(function() {
       butler.getJobStatus(job, function(err, result) {
         console.log('Result of ' + job.job + ' is ' + JSON.stringify(result));
@@ -90,7 +86,7 @@ function updateStatesOfJobs(options) {
         }
       });
     });
-  }
+  });
 }
 
 function setLEDForJob(job, result, options, callback) {
