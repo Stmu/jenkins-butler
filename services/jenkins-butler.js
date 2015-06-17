@@ -100,7 +100,7 @@ function setLEDForJob(job, result, options, callback) {
         http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError).on('end', callback);
         break;
       case "FAILURE":
-        http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError).on('end', callback);
+        http.get(buildLedRequestOptions(options, job, options.leds.failed)).on('error', onRequestError).on('end', callback);
         break;
       case "SUCCESS":
         http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError).on('end', callback);
