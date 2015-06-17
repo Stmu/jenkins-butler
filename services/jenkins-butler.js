@@ -1,6 +1,7 @@
 var http = require('http'),
   _ = require('underscore'),
   updateTimer;
+var sync = require('synchronize')
 
 function JenkinsButler(options) {
   var self = this;
@@ -76,7 +77,7 @@ function updateStatesOfJobs(options) {
       console.log('Result of ' + job.job + ' is ' + JSON.stringify(result));
 
       if (!err) {
-        setLEDForJob(job, result, options);
+        sync.await(setLEDForJob(job, result, options, sync.defer()))
       } else {
         console.log("ERROR: " + err);
       }
@@ -84,27 +85,28 @@ function updateStatesOfJobs(options) {
   })
 }
 
-function setLEDForJob(job, result, options) {
+function setLEDForJob(job, result, options, callback) {
   console.log ("set led for " + job);
   setTimeout(function(){ 
     switch (result) {
       case "UNSTABLE":
-        http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError);
+        http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError).on('end', callback);
         break;
       case "FAILURE":
-        http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError);
+        http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError).on('end', callback);
         break;
       case "SUCCESS":
-        http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError);
+        http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError).on('end', callback);
         break;
       case "ABORTED":
-        http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError);
+        http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError).on('end', callback);
         break;
       case "BUILDING":
-        http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError);
+        http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError).on('end', callback);
         break;
       default:
-        http.get(buildLedRequestOptions(options, job, "#000000")).on('error', onRequestError);
+        console.log('something is happen... Request: ' + JSON.stringify(option) + " JOB: " + JSON.stringify(job))
+        http.get(buildLedRequestOptions(options, job, "000000")).on('error', onRequestError).on('end', callback);
     }
   }, 1000);
 }
