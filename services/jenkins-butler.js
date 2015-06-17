@@ -73,7 +73,8 @@ function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
   
   for(var i = 0; i < butler.jobs.length; i++) {
-   
+
+    var job = butler.jobs[i]
   //}
   //butler.jobs.forEach(function(job) {
     sync.fiber(function() {
