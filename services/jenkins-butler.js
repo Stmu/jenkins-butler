@@ -77,7 +77,9 @@ function updateStatesOfJobs(options) {
       console.log('Result of ' + job.job + ' is ' + JSON.stringify(result));
 
       if (!err) {
-        sync.await(setLEDForJob(job, result, options, sync.defer()))
+        sync.fiber(function() { 
+          setLEDForJob(job, result, options, sync.defer())
+        });
       } else {
         console.log("ERROR: " + err);
       }
