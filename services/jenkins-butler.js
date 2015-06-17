@@ -86,26 +86,27 @@ function updateStatesOfJobs(options) {
 
 function setLEDForJob(job, result, options) {
   console.log ("set led for " + job);
-
-  switch (result) {
-    case "UNSTABLE":
-      http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError);
-      break;
-    case "FAILURE":
-      http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError);
-      break;
-    case "SUCCESS":
-      http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError);
-      break;
-    case "ABORTED":
-      http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError);
-      break;
-    case "BUILDING":
-      http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError);
-      break;
-    default:
-      http.get(buildLedRequestOptions(options, job, "#000000")).on('error', onRequestError);
-  }
+  setTimeout(function(){ 
+    switch (result) {
+      case "UNSTABLE":
+        http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError);
+        break;
+      case "FAILURE":
+        http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError);
+        break;
+      case "SUCCESS":
+        http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError);
+        break;
+      case "ABORTED":
+        http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError);
+        break;
+      case "BUILDING":
+        http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError);
+        break;
+      default:
+        http.get(buildLedRequestOptions(options, job, "#000000")).on('error', onRequestError);
+    }
+  }, 1000);
 }
 
 function onRequestError(err) {
