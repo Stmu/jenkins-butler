@@ -25,7 +25,8 @@ module.exports = {
     "host": "localhost",
     "port": 3000,
     "failed": "red",
-    "success": "#006666",
+    "success": "006666",
+    "aborted": "ABABAB",
     "building": "yellow",
     "unstable": "gray",
     // unused
