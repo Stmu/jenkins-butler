@@ -78,13 +78,14 @@ function updateStatesOfJobs(options) {
       if (!err) {
         setLEDForJob(job, result, options);
       } else {
-        console.error(err);
+        console.log("ERROR: " + err);
       }
     });
   })
 }
 
 function setLEDForJob(job, result, options) {
+  console.log ("set led for " + job);
 
   switch (result) {
     case "UNSTABLE":
