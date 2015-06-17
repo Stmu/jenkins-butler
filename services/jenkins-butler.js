@@ -89,19 +89,19 @@ function setLEDForJob(job, result, options) {
 
   switch (result) {
     case "UNSTABLE":
-      http.get(buildLedRequestOptions(options, job, options.leds.unstable));//.on('error', onRequestError);
+      http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError);
       break;
     case "FAILURE":
-      http.get(buildLedRequestOptions(options, job, options.leds.failure));//.on('error', onRequestError);
+      http.get(buildLedRequestOptions(options, job, options.leds.failure)).on('error', onRequestError);
       break;
     case "SUCCESS":
-      http.get(buildLedRequestOptions(options, job, options.leds.success));//.on('error', onRequestError);
+      http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError);
       break;
     case "BUILDING":
-      http.get(buildLedRequestOptions(options, job, options.leds.building));//.on('error', onRequestError);
+      http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError);
       break;
     default:
-      http.get(buildLedRequestOptions(options, job, "#000000"));//.on('error', onRequestError);
+      http.get(buildLedRequestOptions(options, job, "#000000")).on('error', onRequestError);
   }
 }
 
