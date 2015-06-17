@@ -73,16 +73,18 @@ function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
 
   butler.jobs.forEach(function(job) {
-    butler.getJobStatus(job, function(err, result) {
-      console.log('Result of ' + job.job + ' is ' + JSON.stringify(result));
-
-      if (!err) {
-        sync.fiber(function() { 
-          setLEDForJob(job, result, options, sync.defer())
-        });
-      } else {
-        console.log("ERROR: " + err);
-      }
+    sync.fiber(function() {
+      butler.getJobStatus(job, function(err, result) {
+        console.log('Result of ' + job.job + ' is ' + JSON.stringify(result));
+  
+        if (!err) {
+          sync.fiber(function() { 
+            setLEDForJob(job, result, options, sync.defer())
+          });
+        } else {
+          console.log("ERROR: " + err);
+        }
+      });
     });
   })
 }
