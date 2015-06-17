@@ -97,6 +97,9 @@ function setLEDForJob(job, result, options) {
     case "SUCCESS":
       http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError);
       break;
+    case "ABORTED":
+      http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError);
+      break;
     case "BUILDING":
       http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError);
       break;
