@@ -72,6 +72,9 @@ function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
   butler.jobs.forEach(function(job, index) {
 
+    var delay = Math.floor((Math.random() * 10) + 1) * 1000;
+    console.log("waiting for: " + delay);
+
     setTimeout( butler.getJobStatus(job, function(err, result) {
        console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
 
@@ -82,7 +85,7 @@ function updateStatesOfJobs(options) {
         } else {
           console.log("ERROR: " + err);
         }
-    }), Math.floor((Math.random() * 10) + 1) * 1000);
+    }), delay);
   });
 }
 
