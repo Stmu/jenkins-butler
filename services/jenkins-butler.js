@@ -78,7 +78,7 @@ function updateStatesOfJobs(options) {
 
         setTimeout(setLEDForJob(job, result, options, function(err) {
           console.log("request finished.");
-        }), Math.floor((Math.random() * 10) + 1));
+        }), Math.floor((Math.random() * 10) + 1) * 1000);
       } else {
         console.log("ERROR: " + err);
       }
@@ -114,7 +114,7 @@ function onRequestError(err) {
 }
 
 function buildLedRequestOptions(options, job, color) {
-  console.log ("build request to set led for " + job + " to " + color );
+  console.log ("build request to set led for " + JSON.stringify(job) + " to " + color );
 
   return {
     hostname: options.leds.host,
