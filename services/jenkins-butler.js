@@ -72,7 +72,7 @@ function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
   butler.jobs.forEach(function(job, index) {
     butler.getJobStatus(job, function(err, result) {
-      console.log('['index + "]." + job.job + ' is ' + JSON.stringify(result));
+      console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
 
       if (!err) {
 
