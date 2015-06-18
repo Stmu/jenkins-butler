@@ -71,21 +71,18 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
 function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
   butler.jobs.forEach(function(job, index) {
-
-    var delay = Math.floor((Math.random() * 10) + 1) * 1000;
-    console.log("waiting for: " + delay);
-
-    setTimeout( butler.getJobStatus(job, function(err, result) {
+    butler.getJobStatus(job, function(err, result) {
        console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
 
         if (!err) {
-          setLEDForJob(job, result, options, function(err) {
-            console.log("request finished.");
+          setLEDForJob(job, result, options, function(reqErr) {
+            if (reqErr)
+            console.log("request error. " + JSON.stringify(reqErr) );
           });
         } else {
           console.log("ERROR: " + err);
         }
-    }), delay);
+    });
   });
 }
 
