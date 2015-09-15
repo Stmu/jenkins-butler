@@ -54,7 +54,8 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
 
     res.on('end', function(){
       var resi = JSON.parse(response);
-      callback(null, resi.building ? "BUILDING" : resi.result);
+
+      callback(null, resi.building && job.showOnBuilding ? "BUILDING" : resi.result);
     })
 
   }).on('error', function(e) {
