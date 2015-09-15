@@ -25,10 +25,11 @@ function JenkinsButler(options) {
 }
 
 JenkinsButler.prototype.buildRequestOptions = function(job) {
+  var buildType = job.showOnBuilding ? "lastBuild" : "lastSuccessfulBuild"
   var options = {
     hostname: this.host,
     port: this.port,
-    path: '/job/' + job.job + '/lastBuild/api/json?token=' + this.token,
+    path: '/job/' + job.job + '/'+ buildType +'/api/json?token=' + this.token,
     headers: {
       'Authorization': 'Basic ' + new Buffer(this.username + ':' + this.token).toString('base64')
     }
@@ -55,7 +56,7 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
     res.on('end', function(){
       var resi = JSON.parse(response);
 
-      callback(null, resi.building && job.showOnBuilding ? "BUILDING" : resi.result);
+      callback(null, resi.building ? "BUILDING" : resi.result);
     })
 
   }).on('error', function(e) {
@@ -73,16 +74,16 @@ function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
   butler.jobs.forEach(function(job, index) {
     butler.getJobStatus(job, function(err, result) {
-       console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
+      console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
 
-        if (!err) {
-          setLEDForJob(job, result, options, function(reqErr) {
-            if (reqErr)
-            console.log("request error. " + JSON.stringify(reqErr) );
-          });
-        } else {
-          console.log("ERROR: " + err);
-        }
+      if (!err) {
+        setLEDForJob(job, result, options, function(reqErr) {
+          if (reqErr)
+          console.log("request error. " + JSON.stringify(reqErr) );
+        });
+      } else {
+        console.log("ERROR: " + err);
+      }
     });
   });
 }
