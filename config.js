@@ -9,7 +9,7 @@ module.exports = {
     "updateIntervall": 5,
     "jobs": [{
       "job": "Test",
-      "showOnBuilding" : true
+      "showOnBuilding" : true,
       "leds": {
         "start": 0,
         "end": 4
