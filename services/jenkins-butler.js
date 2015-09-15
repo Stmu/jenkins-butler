@@ -25,7 +25,7 @@ function JenkinsButler(options) {
 }
 
 JenkinsButler.prototype.buildRequestOptions = function(job) {
-  var buildType = job.showOnBuilding ? "lastBuild" : "lastSuccessfulBuild"
+  var buildType = job.showOnBuilding ? "lastBuild" : "lastCompletedBuild"
   var options = {
     hostname: this.host,
     port: this.port,
