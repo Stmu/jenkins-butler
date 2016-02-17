@@ -24,12 +24,12 @@ function JenkinsButler(options) {
   self.updateIntervall = self.options.updateIntervall || null;
 }
 
-JenkinsButler.prototype.buildRequestOptions = function(job) {
+JenkinsButler.prototype.buildRequestOptions = function (job) {
   var buildType = job.showOnBuilding ? "lastBuild" : "lastCompletedBuild"
   var options = {
     hostname: this.host,
     port: this.port,
-    path: '/job/' + job.job + '/'+ buildType +'/api/json?token=' + this.token,
+    path: '/job/' + job.job + '/' + buildType + '/api/json?token=' + this.token,
     headers: {
       'Authorization': 'Basic ' + new Buffer(this.username + ':' + this.token).toString('base64')
     }
@@ -37,10 +37,10 @@ JenkinsButler.prototype.buildRequestOptions = function(job) {
   return options;
 }
 
-JenkinsButler.prototype.getJobStatus = function(job, callback) {
+JenkinsButler.prototype.getJobStatus = function (job, callback) {
   console.log('get status ' + JSON.stringify(job));
 
-  http.get(this.buildRequestOptions(job), function(res) {
+  http.get(this.buildRequestOptions(job), function (res) {
 
     if (res.statusCode != 200) {
       callback('Failed to fetch jenkins data, http status: ' + res.statusCode);
@@ -49,21 +49,21 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
 
     var response = '';
 
-    res.on('data', function(data) {
+    res.on('data', function (data) {
       response += data;
     });
 
-    res.on('end', function(){
+    res.on('end', function () {
       var resi = JSON.parse(response);
 
       callback(null, resi.building ? "BUILDING" : resi.result);
     })
 
-  }).on('error', function(e) {
+  }).on('error', function (e) {
     console.error('Error: ' + e);
     callback(e);
     return;
-  }).on('end', function(e) {
+  }).on('end', function (e) {
     console.error('End:' + e);
     callback(e);
     return;
@@ -72,14 +72,14 @@ JenkinsButler.prototype.getJobStatus = function(job, callback) {
 
 function updateStatesOfJobs(options) {
   console.log('update status from all jobs');
-  butler.jobs.forEach(function(job, index) {
-    butler.getJobStatus(job, function(err, result) {
+  butler.jobs.forEach(function (job, index) {
+    butler.getJobStatus(job, function (err, result) {
       console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
 
       if (!err) {
-        setLEDForJob(job, result, options, function(reqErr) {
+        setLEDForJob(job, result, options, function (reqErr) {
           if (reqErr)
-          console.log("request error. " + JSON.stringify(reqErr) );
+            console.log("request error. " + JSON.stringify(reqErr));
         });
       } else {
         console.log("ERROR: " + err);
@@ -106,7 +106,7 @@ function setLEDForJob(job, result, options, callback) {
       http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError).on('end', callback);
       break;
     default:
-      console.log('something is happen... Request: ' + JSON.stringify(option) + " JOB: " + JSON.stringify(job))
+      console.log('something is happen... Request: ' + JSON.stringify(options) + " JOB: " + JSON.stringify(job))
       http.get(buildLedRequestOptions(options, job, "000000")).on('error', onRequestError).on('end', callback);
   }
 }
@@ -116,7 +116,7 @@ function onRequestError(err) {
 }
 
 function buildLedRequestOptions(options, job, color) {
-  console.log ("build request to set led for " + JSON.stringify(job) + " to " + color );
+  console.log("build request to set led for " + JSON.stringify(job) + " to " + color);
 
   return {
     hostname: options.leds.host,
@@ -158,13 +158,13 @@ function JenkinsButlerService(options) {
 
 }
 
-JenkinsButlerService.prototype.setup = function(config) {
+JenkinsButlerService.prototype.setup = function (config) {
   butler = new JenkinsButler(config.jenkins);
   updateStatesOfJobs(config);
   updateTimer = setInterval(updateStatesOfJobs, config.jenkins.updateIntervall * 1000, config);
 }
 
-JenkinsButlerService.prototype.shutdown = function(config) {
+JenkinsButlerService.prototype.shutdown = function (config) {
   if (updateTimer) {
     console.log('JenkinsButlerService shutdown...')
     clearInterval(updateTimer);
@@ -173,7 +173,7 @@ JenkinsButlerService.prototype.shutdown = function(config) {
       hostname: config.leds.host,
       port: config.leds.port,
       path: '/api/black'
-    }, function(res) {
+    }, function (res) {
       console.log("Result: " + res.statusCode)
     });
   }

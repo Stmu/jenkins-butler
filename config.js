@@ -7,20 +7,49 @@ module.exports = {
     "username": "admin",
     "token": "a3c2ace72dc17dc77903116f14bd19f4",
     "updateIntervall": 5,
-    "jobs": [{
-      "job": "Test",
-      "showOnBuilding" : true,
-      "leds": {
-        "start": 0,
-        "end": 4
+    "jobs": [
+      {
+        "job": "Test",
+        "showOnBuilding": true,
+        "leds": {
+          "start": 0,
+          "end": 4
+        }
+      },
+      {
+        "job": "my-test-job1",
+        "leds": {
+          "start": 5,
+          "end": 9
+        }
       }
-    }, {
-      "job": "my-test-job1",
-      "leds": {
-        "start": 5,
-        "end": 9
+    ]
+  },
+  tfs: {
+    "host": "localhost",
+    "port": 8080,
+    "collection": "default",
+    "username": "name",
+    "password": "password",
+    "updateintervall": 5,
+    "jobs": [
+      {
+        "job": "build1",
+        "showOnBuilding": true,
+        "leds": {
+          "start": 10,
+          "end": 15
+        }
+      },
+      {
+        "job": "build2",
+        "showOnBuilding": true,
+        "leds": {
+          "start": 16,
+          "end": 20
+        }
       }
-    }]
+    ]
   },
   leds: {
     "host": "localhost",
@@ -30,7 +59,7 @@ module.exports = {
     "aborted": "ABABAB",
     "building": "yellow",
     "unstable": "gray",
-    // unused
+    // current unused
     "blink_at_building": true
   }
 };
