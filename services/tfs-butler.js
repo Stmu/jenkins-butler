@@ -88,11 +88,6 @@ function buildLedRequestOptions(options, job, color) {
   };
 }
 
-TfsButler.prototype.buildRequestOptions = function () {
-  ;
-  return options;
-}
-
 TfsButler.prototype.loadBuildStatus = function (callback) {
   console.log('get status ...');
 
