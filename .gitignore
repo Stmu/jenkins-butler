@@ -29,3 +29,6 @@ node_modules
 
 # locally changed config (my include passwords)
 config.js
+
+# jetbrains idea
+.idea/

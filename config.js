@@ -26,15 +26,14 @@ module.exports = {
     ]
   },
   tfs: {
-    "host": "localhost",
-    "port": 8080,
-    "collection": "default",
-    "username": "name",
-    "password": "password",
+    "baseUrl": "https://tfsvs.domain.com/tfs/TEAM/_apis/",
+    "username": "user",
+    "password": "pass",
+    "domain": "domain",
     "updateintervall": 5,
     "jobs": [
       {
-        "job": "build1",
+        "job": "Job1",
         "showOnBuilding": true,
         "leds": {
           "start": 10,
@@ -42,7 +41,7 @@ module.exports = {
         }
       },
       {
-        "job": "build2",
+        "job": "Job2",
         "showOnBuilding": true,
         "leds": {
           "start": 16,
