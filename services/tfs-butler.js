@@ -30,7 +30,7 @@ TfsButler.prototype.loadBuildStatus = function (job, tfsoptions, callback) {
     console.log('get status for job ' + job.job);
 
     httpntlm.get({
-        url: tfsoptions.baseUrl + "build/builds?api-version=1.0&definition=" + job.job + "&$top=1&api-version=1.0",
+        url: tfsoptions.baseUrl + "build/builds?api-version=1.0&definition=" + job.job + "&$top=20&api-version=1.0",
         username: tfsoptions.username,
         password: tfsoptions.password,
         domain: tfsoptions.domain
@@ -71,19 +71,19 @@ TfsButler.prototype.updateStatesOfJobs = function (options) {
 
 function setLEDForJob(job, result, options, callback) {
     switch (result) {
-        case "UNSTABLE":
+        case "partiallysucceeded":
             http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError).on('end', callback);
             break;
-        case "FAILURE":
+        case "failed":
             http.get(buildLedRequestOptions(options, job, options.leds.failed)).on('error', onRequestError).on('end', callback);
             break;
         case "succeeded":
             http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError).on('end', callback);
             break;
-        case "ABORTED":
+        case "stopped":
             http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError).on('end', callback);
             break;
-        case "BUILDING":
+        case "inprogress":
             http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError).on('end', callback);
             break;
         default:
