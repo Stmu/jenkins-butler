@@ -71,7 +71,7 @@ TfsButler.prototype.updateStatesOfJobs = function (options) {
 
 function setLEDForJob(job, result, options, callback) {
     switch (result) {
-        case "partiallysucceeded":
+        case "partiallySucceeded":
             http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError).on('end', callback);
             break;
         case "failed":
@@ -83,7 +83,7 @@ function setLEDForJob(job, result, options, callback) {
         case "stopped":
             http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError).on('end', callback);
             break;
-        case "inprogress":
+        case "inProgress":
             http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError).on('end', callback);
             break;
         default:
