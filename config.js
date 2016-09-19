@@ -25,6 +25,22 @@ module.exports = {
       }
     ]
   },
+  gitlab:{
+    "host" : "localhost",
+    "port" : 443,
+    "token" : "abcdefg",
+    "updateintervall" : 10,
+    "jobs": [
+      {
+        "job": "id1",
+        "showOnBuilding": true,
+        "leds": {
+          "start": 0,
+          "end": 4
+        }
+      }
+    ]
+  },
   tfs: {
     "baseUrl": "https://tfsvs.domain.com/tfs/TEAM/_apis/",
     "username": "user",
