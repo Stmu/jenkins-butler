@@ -113,7 +113,7 @@ function TfsButlerService() {
 TfsButlerService.prototype.setup = function (config) {
     butler = new TfsButler(config.tfs);
     butler.updateStatesOfJobs(config);
-    updateTimer = setInterval(butler.updateStatesOfJobs, config.tfs.updateIntervall * 1000, config);
+    updateTimer = setInterval(butler.updateStatesOfJobs, config.tfs.updateintervall * 1000, config);
 };
 
 TfsButlerService.prototype.shutdown = function (config) {

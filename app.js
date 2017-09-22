@@ -68,7 +68,7 @@ module.exports = app;
 // Load Services
 var servicesPath = path.join(__dirname, 'services');
 fs.readdirSync(servicesPath).forEach(function (file) {
-  if (~file.indexOf('.js')) {
+  if (path.extname(file) === '.js') {
     Services.push(require(path.join(servicesPath, file)));
   }
 });

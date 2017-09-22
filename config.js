@@ -29,7 +29,7 @@ module.exports = {
     "host" : "localhost",
     "port" : 443,
     "token" : "abcdefg",
-    "updateintervall" : 10,
+    "updateIntervall" : 10,
     "jobs": [
       {
         "project_id": "id1",
@@ -46,7 +46,7 @@ module.exports = {
     "username": "user",
     "password": "pass",
     "domain": "domain",
-    "updateintervall": 5,
+    "updateIntervall": 5,
      "jobs": [
     //   {
     //     "job": "Job1",
