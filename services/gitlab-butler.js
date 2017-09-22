@@ -1,4 +1,4 @@
-var http = require('http'),
+var rp = require('request-promise'),
   _ = require('underscore'),
   updateTimer;
 
@@ -21,135 +21,93 @@ function GitlabButler(options) {
   self.updateIntervall = self.options.updateIntervall || null;
 }
 
-GitlabButler.prototype.buildRequestOptions = function (job) {
-  var buildType = job.showOnBuilding ? "lastBuild" : "lastCompletedBuild"
-  var options = {
-    hostname: this.host,
-    port: this.port,
-    path: '/job/' + job.job + '/' + buildType + '/api/json?token=' + this.token,
-    headers: {
-      'Authorization': 'Basic ' + new Buffer(this.username + ':' + this.token).toString('base64')
-    }
-  };
-  return options;
-}
-
-GitlabButler.prototype.getJobStatus = function (job, callback) {
+GitlabButler.prototype.getJobStatus = function (job, options, callback) {
   console.log('get status ' + JSON.stringify(job));
 
-  http.get(this.buildRequestOptions(job), function (res) {
+  var gitlab_api_call = {
+    uri: 'https://' + this.host + ':' + this.port + '/api/v4/projects/' + job.project_id + '/pipelines',
+    headers: {
+      'PRIVATE-TOKEN': this.token
+    },
+    json: true
+  };
 
-    if (res.statusCode != 200) {
-      callback('Failed to fetch gitlab data, http status: ' + res.statusCode);
-      return;
-    }
+  rp(gitlab_api_call)
+    .then(function (pipelines) {
+      const led_count = job.leds.end - job.leds.start;
 
-    var response = '';
-
-    res.on('data', function (data) {
-      response += data;
-    });
-
-    res.on('end', function () {
-      var resi = JSON.parse(response);
-
-      callback(null, resi.status ? "running" : resi.result);
+      return pipelines.sort((a, b) => {
+        if (a.id < b.id) return -1;
+        if (a.id > b.id) { return 1 }
+        else { return 0 }
+      })
+        .reverse()
+        .slice(0, led_count)
     })
+    .catch(function (err) {
+      console.error('Error: ' + err);
+      callback(err);
+    })
+    .then(pipes => {
+      for (led = 0; led < pipes.length; led++) {
 
-  }).on('error', function (e) {
-    console.error('Error: ' + e);
-    callback(e);
-    return;
-  }).on('end', function (e) {
-    console.error('End:' + e);
-    callback(e);
-    return;
-  });
+        const pipeline = pipes[led];
+        console.log(pipeline.status);
+
+        const color = getColorOfState(options, pipeline.status);
+        console.log(color);
+        const led_request = {
+          uri: `http://${options.leds.host}:${options.leds.port}/led/${led}/fill/${color}`
+        }
+        console.log(led_request.uri);
+        rp(led_request).then(_ => {
+          led = led + 1;
+          console.log("new led: " + led);
+        }).error(err => {
+          console.log(err);
+          callback(err);
+        })
+      }
+
+      pipes.forEach(pipeline => {
+        callback(null, pipeline.status ? "running" : pipeline.status);
+      })
+
+    });
+}
+
+function getColorOfState(options, state) {
+  switch (state) {
+    case "success": {
+      return options.leds.success;
+    }
+    case "failed": {
+      return options.leds.failed;
+    }
+    case "running": {
+      return options.leds.building;
+    }
+    case "canceled": {
+      return options.leds.aborted;
+    }
+    case "pending": {
+      return options.leds.aborted;
+    }
+  }
 }
 
 function updateStatesOfJobs(options) {
-  console.log('update status from all jobs');
-  butler.jobs.forEach(function (job, index) {
-    butler.getJobStatus(job, function (err, result) {
-      console.log('[' + index + "]." + job.job + ' is ' + JSON.stringify(result));
 
-      if (!err) {
-        setLEDForJob(job, result, options, function (reqErr) {
-          if (reqErr)
-            console.log("request error. " + JSON.stringify(reqErr));
-        });
-      } else {
-        console.log("ERROR: " + err);
-      }
+  butler.jobs.forEach(function (job, index) {
+    butler.getJobStatus(job, options, function (err, result) {
+        console.log("....");
     });
   });
-}
-
-function setLEDForJob(job, result, options, callback) {
-  switch (result) {
-    case "UNSTABLE":
-      http.get(buildLedRequestOptions(options, job, options.leds.unstable)).on('error', onRequestError).on('end', callback);
-      break;
-    case "FAILURE":
-      http.get(buildLedRequestOptions(options, job, options.leds.failed)).on('error', onRequestError).on('end', callback);
-      break;
-    case "SUCCESS":
-      http.get(buildLedRequestOptions(options, job, options.leds.success)).on('error', onRequestError).on('end', callback);
-      break;
-    case "ABORTED":
-      http.get(buildLedRequestOptions(options, job, options.leds.aborted)).on('error', onRequestError).on('end', callback);
-      break;
-    case "BUILDING":
-      http.get(buildLedRequestOptions(options, job, options.leds.building)).on('error', onRequestError).on('end', callback);
-      break;
-    default:
-      console.log('something is happen... Request: ' + JSON.stringify(options) + " JOB: " + JSON.stringify(job))
-      http.get(buildLedRequestOptions(options, job, "000000")).on('error', onRequestError).on('end', callback);
-  }
 }
 
 function onRequestError(err) {
   console.log("Got error: " + err.message);
 }
-
-function buildLedRequestOptions(options, job, color) {
-  console.log("build request to set led for " + JSON.stringify(job) + " to " + color);
-
-  return {
-    hostname: options.leds.host,
-    port: options.leds.port,
-    path: '/led/from/' + job.leds.start + '/to/' + job.leds.end + '/fill/' + color
-  };
-}
-
-// function buildLedRequestOptionsPost(options) {
-//   return {
-//     hostname: options.leds.host,
-//     port: options.leds.port,
-//     method: "POST",
-//     path: "/api/range",
-//     headers: {
-//       'Content-Type': "application/json"
-//     }
-//   };
-// }
-//
-// function makeLedsShining(start, end, color, options) {
-//   req = http.request(buildLedRequestOptionsPost(options));
-//
-//   req.on('error', function(e) {
-//     console.log('problem with request: ' + e.message);
-//   });
-//
-//   var post_data = JSON.stringify({
-//     "from": start,
-//     "to": end,
-//     "rgb": color
-//   });
-//
-//   req.write(post_data);
-//   req.end();
-// }
 
 function GitlabButlerService(options) {
 
@@ -165,14 +123,6 @@ GitlabButlerService.prototype.shutdown = function (config) {
   if (updateTimer) {
     console.log('GitlabButlerService shutdown...')
     clearInterval(updateTimer);
-
-    http.get({
-      hostname: config.leds.host,
-      port: config.leds.port,
-      path: '/api/black'
-    }, function (res) {
-      console.log("Result: " + res.statusCode)
-    });
   }
 }
 
