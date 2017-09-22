@@ -26,22 +26,6 @@ module.exports = {
     ]
   },
   gitlab:{
-    "host" : "gitlab.ise.de",
-    "port" : 443,
-    "token" : "waWwxqVQ4pD6eB17oFRt",
-    "updateintervall" : 10,
-    "jobs": [
-      {
-        "project_id": "363",
-        "showOnBuilding": true,
-        "leds": {
-          "start": 0,
-          "end": 10
-        }
-      }
-    ]
-  },
-  gitlab1:{
     "host" : "localhost",
     "port" : 443,
     "token" : "abcdefg",
@@ -83,7 +67,7 @@ module.exports = {
      ]
   },
   leds: {
-    "host": "172.24.224.27",
+    "host": "localhost",
     "port": 3000,
     "failed": "red",
     "success": "006666",

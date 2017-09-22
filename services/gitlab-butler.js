@@ -49,9 +49,10 @@ GitlabButler.prototype.getJobStatus = function (job, options, callback) {
       callback(err);
     })
     .then(pipes => {
-      for (led = 0; led < pipes.length; led++) {
+      pipes.forEach((pipeline, led) => {
+        // for (led = 0; led < pipes.length; led++) {
 
-        const pipeline = pipes[led];
+        //   const pipeline = pipes[led];
         console.log(pipeline.status);
 
         const color = getColorOfState(options, pipeline.status);
@@ -67,12 +68,7 @@ GitlabButler.prototype.getJobStatus = function (job, options, callback) {
           console.log(err);
           callback(err);
         })
-      }
-
-      pipes.forEach(pipeline => {
-        callback(null, pipeline.status ? "running" : pipeline.status);
-      })
-
+      });
     });
 }
 
@@ -100,7 +96,7 @@ function updateStatesOfJobs(options) {
 
   butler.jobs.forEach(function (job, index) {
     butler.getJobStatus(job, options, function (err, result) {
-        console.log("....");
+      console.log("....");
     });
   });
 }
