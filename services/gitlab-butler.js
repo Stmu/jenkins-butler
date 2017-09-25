@@ -80,7 +80,7 @@ function mapStateToColor(options, state) {
       return options.leds.aborted;
     }
     case "pending": {
-      return options.leds.aborted;
+      return options.leds.pending;
     }
   }
 }

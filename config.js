@@ -69,10 +69,11 @@ module.exports = {
   leds: {
     "host": "localhost",
     "port": 3000,
-    "failed": "red",
-    "success": "006666",
+    "failed": "d02727",
+    "success": "0cb00c",
     "aborted": "ABABAB",
     "building": "yellow",
+    "pending" : "orange",
     "unstable": "gray",
     // current unused
     "blink_at_building": true
