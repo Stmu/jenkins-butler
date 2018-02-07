@@ -44,16 +44,17 @@ GitlabButler.prototype.getJobStatus = function (job, options) {
         })
         .reverse()
         .slice(0, led_count)
+        .map((p, index) => {status: p.status; index: job.leds.start + index })
     })
     .catch(err => {
       console.error('Error: ' + err);
     })
     .then(pipes => {
-      pipes.forEach((pipeline, led) => {
+      pipes.forEach((pipeline) => {
         const color = mapStateToColor(options, pipeline.status);
 
         const led_request = {
-          uri: `http://${options.leds.host}:${options.leds.port}/led/${led}/fill/${color}`
+          uri: `http://${options.leds.host}:${options.leds.port}/led/${pipeline.index}/fill/${color}`
         }
 
         rp(led_request).then(_ => {
