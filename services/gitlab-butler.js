@@ -44,7 +44,7 @@ GitlabButler.prototype.getJobStatus = function (job, options) {
         })
         .reverse()
         .slice(0, led_count)
-        .map((p, index) => {pipeline:p; index: job.leds.start + index }})
+        .map((p, index) => {return  {pipeline:p, index: job.leds.start + index }})
     })
     .catch(err => {
       console.error('Error: ' + err);
